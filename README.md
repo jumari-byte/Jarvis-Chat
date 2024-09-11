@@ -13,8 +13,7 @@ Groq-Frontend is a simple and lightweight frontend interface for the Groq API. I
 - **Code Highlighting**: Highlights code snippets with syntax highlighting for better readability.
 - **Code Copying**: Allows users to easily copy generated code with a single click.
 
-**Live Demo**
-https://jumari.onrender.com/
+[**Live Demo**](https://jumari.onrender.com/)
 
 **Requirements** 
 

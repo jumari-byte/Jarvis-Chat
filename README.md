@@ -1,8 +1,8 @@
-# Groq-chat
+# Jarvis-chat
 A Lightweight Frontend for [the groq API](https://console.groq.com/docs/quickstart).
 
 **Overview**
-Groq-Frontend is a simple and lightweight frontend interface for the Groq API. It provides a basic memory for follow-up questions, customizable system prompts, and the ability to choose from various AI models. This project is designed to be easy to use and requires minimal setup.
+Jarvis-chat is a simple and lightweight frontend interface for the Groq API. It provides a basic memory for follow-up questions, customizable system prompts, and the ability to choose from various AI models. This project is designed to be easy to use and requires minimal setup.
 
 **Features**
 - **Rudimentary Memory**: Groq-Frontend has a basic memory that allows it to remember previous conversations and respond accordingly.
@@ -13,11 +13,11 @@ Groq-Frontend is a simple and lightweight frontend interface for the Groq API. I
 - **Code Highlighting**: Highlights code snippets with syntax highlighting for better readability.
 - **Code Copying**: Allows users to easily copy generated code with a single click.
 
-[**Live Demo**](https://jumari.onrender.com/)
+[**Live Demo**](https://ai.arjum.com/)
 
 **Requirements** 
 
-To use Groq-Frontend, you'll need to install the following dependencies:
+To use Jarvis-chat, you'll need to install the following dependencies:
 ```
 pip install flask groq
 ```

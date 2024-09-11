@@ -107,7 +107,7 @@ function finishAssistantMessage(content) {
   }
 }
 
-function smoothRender(content, renderInterval = 17) {
+function smoothRender(content, renderInterval = 9) {
   let renderIndex = 0;
   const renderStep = 3; // Number of characters to render in each step
 

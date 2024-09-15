@@ -2,7 +2,8 @@
 A Lightweight Frontend for [the groq API](https://console.groq.com/docs/quickstart).
 
 **Overview**
-Jarvis-chat is a simple and lightweight frontend interface for the Groq API. It provides a basic memory for follow-up questions, customizable system prompts, and the ability to choose from various AI models. This project is designed to be easy to use and requires minimal setup.
+Jarvis-Chat is a sleek and lightweight frontend interface for the Groq API, offering a smooth, intuitive experience. It features basic memory for follow-up questions, customizable system prompts, and allows you to select from a variety of AI models. Designed for ease of use, it requires minimal setup to get started. Powering a local ChatGPT-like environment, Jarvis-Chat leverages the cutting-edge LLaMA 3.1 series on Groq's fastest inference engine, delivering top-tier performance in an open-source framework.
+
 
 **Features**
 - **Rudimentary Memory**: Groq-Frontend has a basic memory that allows it to remember previous conversations and respond accordingly.

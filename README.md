@@ -23,7 +23,7 @@ Jarvis-Chat is a sleek and lightweight frontend interface for the Groq API, offe
 
 To use Jarvis-chat, you'll need to install the following dependencies:
 ```
-pip install flask groq
+pip install flask groq beautifulsoup4 requests
 ```
 
 **Getting Started**

@@ -12,6 +12,9 @@ Jarvis-chat is a simple and lightweight frontend interface for the Groq API. It 
 - **Markdown Rendering**: Supports rendering of Markdown syntax for formatted text.
 - **Code Highlighting**: Highlights code snippets with syntax highlighting for better readability.
 - **Code Copying**: Allows users to easily copy generated code with a single click.
+- **Web Search Function**: You can perform a web search to get up-to-date information.
+
+
 
 [**Live Demo**](https://ai.arjum.com/)
 
@@ -37,3 +40,10 @@ function smoothRender(content, renderInterval = 17) {
   let renderIndex = 0;
   const renderStep = 3; // Number of characters to render in each step
 ```
+
+**Web search Function**
+To perform a web search, you can type the word "search" or "cari," and Jarvis will use the top 2 search results as context to provide a response.
+
+You can also get information from a URL. Jarvis will add the content from the URL as context before providing a response.
+
+thats it.

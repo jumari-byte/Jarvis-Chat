@@ -42,6 +42,7 @@ function smoothRender(content, renderInterval = 17) {
 ```
 
 **Web search Function**
+
 To perform a web search, you can type the word "search" or "cari," and Jarvis will use the top 2 search results as context to provide a response.
 
 You can also get information from a URL. Jarvis will add the content from the URL as context before providing a response.

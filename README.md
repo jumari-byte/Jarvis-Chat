@@ -16,6 +16,9 @@ Jarvis-Chat is a sleek and lightweight frontend interface for the Groq API, offe
 - **Web Search Function**: You can perform a web search to get up-to-date information.
 
 
+![Jarvis-Chat2](https://github.com/user-attachments/assets/9e064249-1248-4f43-9094-92d3b855b862)
+
+
 
 [**Live Demo**](https://ai.arjum.com/)
 

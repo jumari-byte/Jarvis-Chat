@@ -2,10 +2,23 @@ from flask import Flask, request, render_template, session, redirect, url_for, R
 import os
 from groq import Groq
 import json
+from tools.WebSearch_Tool import WebSearch_Tool
+from tools.WebGetContents_Tool import WebGetContents_Tool
+import re
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+
+def web_search(query):
+    search_results = WebSearch_Tool(query)
+    if len(search_results) >= 2:
+        for i in range(2):
+            url = search_results[i]['url']
+            content = WebGetContents_Tool(url)
+            if content:
+                search_results[i]['content'] = content[:8000]  # Limit content to 8000 characters
+    return search_results[:2]  # Return only the top 2 results
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -24,6 +37,25 @@ def stream():
     if assistant_prompt:
         assistant_message = {"role": "system", "content": assistant_prompt}
         conversation_history.insert(0, assistant_message)
+    # Check if the user input contains a URL
+    url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    urls = url_pattern.findall(user_input)
+
+    if urls:
+        for url in urls:
+            web_content = WebGetContents_Tool(url)
+            if web_content:
+                url_content = f"Content from [URL: {url}]\n{web_content[:8000]}\n\n"
+                user_input = f"{url_content}{user_input}"
+
+    # Perform web search if needed
+    if "search" in user_input.lower() or "cari" in user_input.lower():
+        if "cari" in user_input.lower():
+            query = user_input.lower().split("cari")[-1].strip()
+        elif "search" in user_input.lower():
+            query = user_input.lower().split("search")[-1].strip()
+        search_results = web_search(query)
+        user_input = f"Search results: {search_results}\n\n{user_input}"
 
     user_message = {"role": "user", "content": user_input}
     conversation_history.append(user_message)
@@ -63,6 +95,6 @@ def stream():
 def reset():
     session.clear()
     return redirect(url_for('index'))
-    
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4001, debug=True)

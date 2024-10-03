@@ -1,5 +1,11 @@
 Flask
 Gunicorn
-groq
+openai
 beautifulsoup4
 requests
+PyPDF2
+pycryptodome
+fake-useragent
+cohere
+numpy
+faiss-cpu

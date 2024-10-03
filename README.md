@@ -7,7 +7,7 @@ Jarvis-Chat is a Flask-based web application that utilizes various AI models to 
 ![jarvis](https://github.com/user-attachments/assets/fbe43765-def1-411c-9db1-97217794712a)
 
 **Features**
-- **Rudimentary Memory**: Groq-Frontend has a basic memory that allows it to remember previous conversations and respond accordingly.
+- **Rudimentary Memory**: Jarvis has a basic memory that allows it to remember previous conversations and respond accordingly.
 - **Customizable System Prompt**: You can customize the system prompt to fit your specific needs.
 - **Choose AI Model**: Select from a variety of AI models to use with the Groq, Cohere, Mistral, Cerebras, Sambanova API.
 - **Session Reset**: Easily reset the session to start a new conversation.
@@ -19,12 +19,6 @@ Jarvis-Chat is a Flask-based web application that utilizes various AI models to 
 
 [**Live Demo**](https://ai.arjum.com/)
 
-**Requirements** 
-
-To use Jarvis-chat, you'll need to install the following dependencies:
-```
-pip install flask groq beautifulsoup4 requests
-```
 
 **Getting Started**
 - Clone the repository or download the code.

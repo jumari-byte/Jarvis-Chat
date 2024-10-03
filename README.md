@@ -25,7 +25,7 @@ Jarvis-Chat is a Flask-based web application that utilizes various AI models to 
 - cd to jarvis-chat
 - Install the required dependencies using
 ```
- pip install -r requirements.txt
+pip install -r requirements.txt
 ``` 
 - Set up your API keys and credentials
 - Run the application using:

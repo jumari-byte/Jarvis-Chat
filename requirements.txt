@@ -1,5 +1,4 @@
 Flask
-Gunicorn
 openai
 beautifulsoup4
 requests

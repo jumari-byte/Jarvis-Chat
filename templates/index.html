@@ -18,55 +18,94 @@
     <div class="chat-header">
       <h1>Jarvis</h1>
       <div>
-        <button id="settings-button" type="button">Settings</button>
         <form action="/reset" method="post" id="reset_form" style="display: inline;">
           <button type="submit">Reset</button>
         </form>
+        <button id="settings-button" type="button">
+          <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <g stroke="#e0e0e0" stroke-width="2" stroke-linecap="round">
+              <path d="M3 4h13M3 9h18M3 14h10M3 19h16"/>
+              <circle cx="19" cy="4" r="2"/>
+              <circle cx="13" cy="14" r="2"/>
+              <circle cx="05" cy="19" r="2"/>
+            </g>
+          </svg>
+        </button>
       </div>
     </div>
+
+    <div id="flash-message-container"></div>
+
     <form action="/stream" method="post" id="query-form">
-<div id="assistant-prompt-wrapper" style="display: none;">
-  <div class="settings-column">
-    <label for="model_select">Model:</label>
-    <select id="model_select" name="model_select">
-      <option value="gemma2-9b-it">gemma2-9b-it</option>
-      <option value="llama-3.1-70b-versatile" selected>llama-3.1-70b-versatile</option>
-      <option value="llama-3.1-8b-instant">llama-3.1-8b-instant</option>
-      <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
-    </select>
-    
-    <label for="assistant_prompt">Assistant Prompt:</label>
-    <textarea
-      id="assistant_prompt"
-      name="assistant_prompt"
-      rows="9"
-      placeholder="Enter assistant prompt...">{{ assistant_prompt }}</textarea>
-  </div>
-</div>
+      <div id="assistant-prompt-wrapper" style="display: none;">
+        <div class="settings-column">
+          <label for="model_select">Model:</label>
+          <select id="model_select" name="model_select">
+            <option value="gemma-7b-it">(Google) gemma-7B</option>            
+            <option value="gemma2-9b-it">(Google) gemma2-9B</option>
+            <option value="llama-3.2-90b-text-preview">(Meta) Llama 3.2 90B </option>
+            <option value="llama-3.2-11b-text-preview">(Meta) Llama 3.2 11B </option>
+            <option value="llama-3.2-3b-preview">(Meta) Llama 3.2 3B</option>
+            <option value="llama-3.2-1b-preview">(Meta) Llama 3.2 1B</option>
+            <option value="Meta-Llama-3.1-405B-Instruct">(Meta) Llama 3.1 405B Instruct</option>
+            <option value="llama-3.1-70b-versatile" selected>(Meta) llama-3.1-70B</option>
+            <option value="llama-3.1-8b-instant">(Meta) llama-3.1-8B</option>
+            <option value="mistral-large-2407">(Mistral) Mistral large 2 123B</option> 
+            <option value="mistral-small-2409">(Mistral) Mistral Small 22B</option>
+            <option value="llama3.1-70b">(Meta) llama3.1-70B (cerebras)</option>
+            <option value="llama3.1-8b">(Meta) llama3.1-8B SPEED (cerebras)</option>
+          </select>
+
+          <label for="assistant_prompt">Assistant Prompt:</label>
+          <textarea
+            id="assistant_prompt"
+            name="assistant_prompt"
+            rows="9"
+            placeholder="Enter assistant prompt...">{{ assistant_prompt }}</textarea>
+        </div>
+      </div>
       <div class="chat-area" id="chat_area">
         {% for message in conversation %}
           {% if message.role == 'user' %}
             <div class="message user-message">{{ message.content }}</div>
           {% elif message.role == 'assistant' %}
-            <div class="message assistant-message">{{ message.content|safe }}</div>
+            <div class="message assistant-message initial-content">{{ message.content|safe }}</div>
           {% endif %}
         {% endfor %}
       </div>
       <input type="hidden" id="conversation_history" name="conversation_history" value="[]">
     </form>
   </div>
+
   <div class="input-wrapper">
     <div class="input-container">
-      <textarea
-        id="user_input"
-        name="user_input"
-        rows="1"
-        placeholder="Type your message here..."
-        required
-      ></textarea>
-      <button type="button" id="send-button">Send</button>
-    </div>
+      <div id="pdf-info" style="display: none;">
+        <span id="pdf-filename"></span>
+        <button id="remove-pdf" type="button">x</button>
+      </div>
+      <div class="input-row">
+        <button id="attach-button" type="button">
+          <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21.586 10.461l-10.05 10.075c-1.95 1.949-5.122 1.949-7.071 0s-1.95-5.122 0-7.072l10.628-10.585c1.17-1.17 3.073-1.17 4.243 0 1.17 1.17 1.17 3.072 0 4.242l-8.507 8.464c-.39.39-1.024.39-1.414 0s-.39-1.024 0-1.414l7.093-7.05-1.415-1.414-7.093 7.049c-1.17 1.17-1.17 3.073 0 4.243 1.17 1.17 3.072 1.17 4.242 0l8.507-8.464c1.95-1.95 1.95-5.123 0-7.072-1.95-1.949-5.123-1.949-7.072 0L3.039 13.063c-2.73 2.729-2.73 7.17 0 9.9 2.73 2.729 7.17 2.729 9.9 0l10.05-10.075-1.414-1.414z" fill="#e0e0e0"/>
+          </svg>
+        </button>
+        <input type="file" id="file-upload" name="file" accept=".pdf" style="display: none;">
+        <textarea
+          id="user_input"
+          name="user_input"
+          rows="1"
+          placeholder="Type your message here..."
+          required
+        ></textarea>
+        <button type="button" id="send-button">
+          <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="#e0e0e0"/>
+          </svg>
+        </button>
+      </div>
+    </div> 
   </div>
+  <div id="loading-indicator" style="display: none;">Uploading PDF...</div>
   <script src="{{ url_for('static', filename='highlight.min.js') }}"></script>
   <script src="{{ url_for('static', filename='marked.min.js') }}"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
@@ -74,10 +113,6 @@
     const modelSelect = document.getElementById('model_select');
     // Set initial value from session
     modelSelect.value = "{{ selected_model }}";
-
-    modelSelect.addEventListener('change', function() {
-      // You can add any additional logic here if needed when the model changes
-    });
   </script>
 </body>
 </html>

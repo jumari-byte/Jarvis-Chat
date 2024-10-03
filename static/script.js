@@ -1,156 +1,187 @@
-document.getElementById("user_input").focus();
-const chatArea = document.getElementById("chat_area");
-const queryForm = document.getElementById("query-form");
-const userInput = document.getElementById("user_input");
-const sendButton = document.getElementById("send-button");
-const assistantPrompt = document.getElementById("assistant_prompt");
-const settingsButton = document.getElementById('settings-button');
-const assistantPromptWrapper = document.getElementById('assistant-prompt-wrapper');
+// Global variables
+let currentPdfFilename = null;
+let pdfUploaded = false;
+let isAutoScrollEnabled = true;
 
-let currentAssistantMessage;
-let contentBuffer = '';
-const decoder = new TextDecoder();
+document.addEventListener('DOMContentLoaded', (event) => {
+  processInitialContent();
+  attachEventListeners();
+  adjustChatAreaHeight();
+});
 
-function adjustChatAreaHeight() {
-  const inputWrapper = document.querySelector('.input-wrapper');
-  const inputHeight = inputWrapper.offsetHeight;
-  const chatArea = document.getElementById('chat_area');
-  chatArea.style.maxHeight = `calc(100vh - ${inputHeight + 100}px)`;
-}
+function attachEventListeners() {
+  const sendButton = document.getElementById("send-button");
+  const userInput = document.getElementById("user_input");
+  const settingsButton = document.getElementById('settings-button');
+  const modelSelect = document.getElementById('model_select');
+  const attachButton = document.getElementById('attach-button');
+  const fileUpload = document.getElementById('file-upload');
+  const removePdfButton = document.getElementById('remove-pdf');
+  const chatArea = document.getElementById("chat_area");
 
-window.addEventListener('load', adjustChatAreaHeight);
-window.addEventListener('resize', adjustChatAreaHeight);
-
-function addCopyButtons() {
-  document.querySelectorAll('pre').forEach((pre) => {
-    if (!pre.querySelector('.copy-button')) {
-      const button = document.createElement('button');
-      button.className = 'copy-button';
-      button.textContent = 'Copy';
-      button.type = 'button';
-      button.addEventListener('click', (event) => {
-        event.preventDefault();
-        const code = pre.querySelector('code');
-        navigator.clipboard.writeText(code.textContent).then(() => {
-          button.textContent = 'Copied!';
-          setTimeout(() => {
-            button.textContent = 'Copy';
-          }, 2000);
-        }).catch((error) => {
-          console.error('Failed to copy: ', error);
-          button.textContent = 'Error';
-        });
-      });
-      pre.appendChild(button);
-    }
-  });
-}
-
-function applyHighlighting() {
-  document.querySelectorAll('pre code').forEach((block) => {
-    hljs.highlightElement(block);
-  });
-}
-
-function renderMessage(content, isAssistant) {
-  const messageDiv = document.createElement('div');
-  messageDiv.className = isAssistant ? 'message assistant-message' : 'message user-message';
-
-  const contentDiv = document.createElement('div');
-  contentDiv.className = 'message-content';
-
-  if (isAssistant) {
-    contentDiv.innerHTML = marked.parse(content);
-    applyHighlighting();
-    addCopyButtons();
-  } else {
-    contentDiv.textContent = content;
+  if (sendButton) {
+    sendButton.addEventListener("click", sendMessage);
   }
 
-  messageDiv.appendChild(contentDiv);
-  return messageDiv;
+  if (userInput) {
+    userInput.addEventListener('input', adjustTextareaHeight);
+    userInput.addEventListener('keypress', handleEnterPress);
+  }
+
+  if (settingsButton) {
+    settingsButton.addEventListener('click', toggleSettings);
+  }
+
+  if (modelSelect) {
+    modelSelect.addEventListener('change', handleModelChange);
+  }
+
+  if (attachButton) {
+    attachButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      if (!isUploading) {
+        fileUpload.click();
+      }
+    });
+  }
+
+  if (fileUpload) {
+    fileUpload.addEventListener('change', handleFileUpload);
+  }
+
+  if (removePdfButton) {
+    removePdfButton.addEventListener('click', removePdf);
+  }
+
+  if (chatArea) {
+    chatArea.addEventListener("scroll", handleManualScroll);
+    chatArea.addEventListener("touchstart", function() {
+      isAutoScrollEnabled = false;
+    });
+    chatArea.addEventListener("touchend", function() {
+      const isScrolledToBottom = chatArea.scrollHeight - chatArea.clientHeight <= chatArea.scrollTop + 1;
+      isAutoScrollEnabled = isScrolledToBottom;
+    });
+  }
+
+  window.addEventListener('resize', adjustChatAreaHeight);
+
+  applyHighlightingAndCopyButtons();
 }
 
-function scrollToBottom() {
-  chatArea.scrollTop = chatArea.scrollHeight;
+function processInitialContent() {
+  document.querySelectorAll('.assistant-message.initial-content').forEach((messageDiv) => {
+    const content = messageDiv.textContent;
+    messageDiv.innerHTML = marked.parse(content);
+  });
+  applyHighlightingAndCopyButtons();
 }
 
-function createAssistantMessage() {
-  currentAssistantMessage = document.createElement('div');
-  currentAssistantMessage.className = 'message assistant-message typing-animation';
-  currentAssistantMessage.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-  chatArea.appendChild(currentAssistantMessage);
-  scrollToBottom();
-}
+let isUploading = false;
 
-function updateAssistantMessage(content) {
-  if (currentAssistantMessage) {
-    currentAssistantMessage.innerHTML = marked.parse(content) + '<span class="cursor">▋</span>';
-    applyHighlighting();
-    addCopyButtons();
+function handleFileUpload(event) {
+  if (isUploading) return;
+  
+  const file = event.target.files[0];
+  if (!file) return;
+
+  isUploading = true;
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const loadingIndicator = document.getElementById('loading-indicator');
+  loadingIndicator.style.display = 'block';
+
+  fetch('/', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    showFlashMessage(data.message);
+    currentPdfFilename = file.name;
+    pdfUploaded = true;
+    displayPdfInfo(file.name);
+    adjustChatAreaHeight();
     scrollToBottom();
-  }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showFlashMessage('An error occurred while uploading the file.');
+  })
+  .finally(() => {
+    loadingIndicator.style.display = 'none';
+    isUploading = false;
+    // Reset the file input
+    event.target.value = '';
+  });
 }
 
-function finishAssistantMessage(content) {
-  if (currentAssistantMessage) {
-    currentAssistantMessage.innerHTML = marked.parse(content);
-    applyHighlighting();
-    addCopyButtons();
+function showFlashMessage(message) {
+  const flashContainer = document.getElementById('flash-message-container');
+  const flashMessage = document.createElement('div');
+  flashMessage.className = 'flash-message';
+  flashMessage.textContent = message;
+  flashContainer.appendChild(flashMessage);
 
-    const conversationHistory = JSON.parse(document.getElementById('conversation_history').value);
-    conversationHistory.push({ role: 'assistant', content: content });
-    document.getElementById('conversation_history').value = JSON.stringify(conversationHistory);
-
-    currentAssistantMessage = null;
-    contentBuffer = '';
-  }
+  setTimeout(() => {
+    flashContainer.removeChild(flashMessage);
+  }, 5000);
 }
 
-function smoothRender(content, renderInterval = 9) {
-  let renderIndex = 0;
-  const renderStep = 3; // Number of characters to render in each step
+function displayPdfInfo(filename) {
+  const pdfInfo = document.getElementById('pdf-info');
+  const pdfFilename = document.getElementById('pdf-filename');
+  const userInput = document.getElementById("user_input");
+  pdfFilename.textContent = filename;
+  pdfInfo.style.display = 'block';
+  
+  // Move the PDF info above the user input
+  const inputContainer = document.querySelector('.input-container');
+  inputContainer.insertBefore(pdfInfo, inputContainer.firstChild);
+  
+  adjustTextareaHeight.call(userInput);
+}
 
-  function renderNextChunk() {
-    if (renderIndex === 0) {
-      // Remove typing animation when starting to render content
-      currentAssistantMessage.classList.remove('typing-animation');
-      currentAssistantMessage.innerHTML = '';
-    }
-
-    if (renderIndex < content.length) {
-      const chunk = content.slice(renderIndex, renderIndex + renderStep);
-      updateAssistantMessage(content.slice(0, renderIndex + renderStep));
-      renderIndex += renderStep;
-      setTimeout(renderNextChunk, renderInterval);
-    } else {
-      finishAssistantMessage(content);
-    }
-  }
-
-  renderNextChunk();
+function removePdf() {
+  const fileUpload = document.getElementById('file-upload');
+  const pdfInfo = document.getElementById('pdf-info');
+  fileUpload.value = '';
+  pdfInfo.style.display = 'none';
+  currentPdfFilename = null;
+  pdfUploaded = false;
+  
+  adjustTextareaHeight.call(document.getElementById("user_input"));
 }
 
 function sendMessage(event) {
   event.preventDefault();
-  const formData = new FormData(queryForm);
+  const userInput = document.getElementById("user_input");
   const userInputValue = userInput.value.trim();
 
-  if (userInputValue === '') {
-    alert('Please enter a message');
+  if (userInputValue === '' && !pdfUploaded) {
+    showFlashMessage('Please enter a message or upload a PDF');
     return;
   }
 
-   // Add user input and selected model to formData
-  formData.append('user_input', userInputValue);
-  formData.append('model_select', modelSelect.value);
+  const formData = new FormData(document.getElementById("query-form"));
+  let messageContent = userInputValue;
+  if (pdfUploaded && currentPdfFilename) {
+    messageContent = `[${currentPdfFilename}]\n${messageContent}`;
+    pdfUploaded = false; // Reset the flag after sending the message
+  }
+  formData.append('user_input', messageContent);
+  formData.append('model_select', document.getElementById('model_select').value);
 
   const conversationHistory = JSON.parse(document.getElementById('conversation_history').value);
-  conversationHistory.push({ role: 'user', content: userInputValue });
+  conversationHistory.push({ role: 'user', content: messageContent });
   document.getElementById('conversation_history').value = JSON.stringify(conversationHistory);
 
-  chatArea.appendChild(renderMessage(userInput.value, false));
+  appendMessage(messageContent, false);
   userInput.value = '';
+  
+  // Hide PDF info after sending the message, but keep the filename
+  document.getElementById('pdf-info').style.display = 'none';
 
   createAssistantMessage();
   adjustChatAreaHeight();
@@ -161,53 +192,160 @@ function sendMessage(event) {
     body: formData
   }).then(response => {
     const reader = response.body.getReader();
-
-    function processText(result) {
-      if (result.done) {
-        smoothRender(contentBuffer);
-        return;
-      }
-
-      const chunk = decoder.decode(result.value, { stream: true });
-      contentBuffer += chunk;
-
-      return reader.read().then(processText);
-    }
-
-    return reader.read().then(processText);
+    return streamResponse(reader);
   }).catch(error => {
     console.error('Error:', error);
     finishAssistantMessage('Error: Could not get response from server.');
   });
 }
 
-sendButton.addEventListener("click", sendMessage);
+function streamResponse(reader) {
+  let contentBuffer = '';
+  const decoder = new TextDecoder();
 
-userInput.addEventListener('input', function() {
+  function processText({ done, value }) {
+    if (done) {
+      finishAssistantMessage(contentBuffer);
+      return;
+    }
+
+    const chunk = decoder.decode(value, { stream: true });
+    contentBuffer += chunk;
+
+    if (!window.updateTimeout) {
+      window.updateTimeout = setTimeout(() => {
+        updateAssistantMessage(contentBuffer);
+        window.updateTimeout = null;
+      }, 11);
+    }
+
+    return reader.read().then(processText);
+  }
+
+  return reader.read().then(processText);
+}
+
+function appendMessage(content, isAssistant) {
+  const chatArea = document.getElementById("chat_area");
+  const messageDiv = document.createElement('div');
+  messageDiv.className = isAssistant ? 'message assistant-message' : 'message user-message';
+
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'message-content';
+
+  if (isAssistant) {
+    contentDiv.innerHTML = marked.parse(content);
+    applyHighlightingAndCopyButtons();
+  } else {
+    contentDiv.textContent = content;
+  }
+
+  messageDiv.appendChild(contentDiv);
+  chatArea.appendChild(messageDiv);
+  scrollToBottom();
+}
+
+function createAssistantMessage() {
+  const chatArea = document.getElementById("chat_area");
+  const assistantMessage = document.createElement('div');
+  assistantMessage.className = 'message assistant-message typing-animation';
+  chatArea.appendChild(assistantMessage);
+  scrollToBottom();
+  return assistantMessage;
+}
+
+function updateAssistantMessage(content) {
+  const assistantMessage = document.querySelector('.assistant-message.typing-animation');
+  if (assistantMessage) {
+    assistantMessage.innerHTML = marked.parse(content);
+    applyHighlightingAndCopyButtons();
+    scrollToBottom();
+  }
+}
+
+function finishAssistantMessage(content) {
+  const assistantMessage = document.querySelector('.assistant-message.typing-animation');
+  if (assistantMessage) {
+    assistantMessage.classList.remove('typing-animation');
+    assistantMessage.innerHTML = marked.parse(content);
+    applyHighlightingAndCopyButtons();
+    scrollToBottom();
+
+    const conversationHistory = JSON.parse(document.getElementById('conversation_history').value);
+    conversationHistory.push({ role: 'assistant', content: content });
+    document.getElementById('conversation_history').value = JSON.stringify(conversationHistory);
+  }
+}
+
+function handleManualScroll() {
+  const chatArea = document.getElementById("chat_area");
+  const isScrolledToBottom = chatArea.scrollHeight - chatArea.clientHeight <= chatArea.scrollTop + 1;
+  isAutoScrollEnabled = isScrolledToBottom;
+}
+
+function scrollToBottom() {
+  const chatArea = document.getElementById("chat_area");
+  if (isAutoScrollEnabled) {
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+}
+
+function adjustChatAreaHeight() {
+  const inputWrapper = document.querySelector('.input-wrapper');
+  const inputHeight = inputWrapper.offsetHeight;
+  const chatArea = document.getElementById('chat_area');
+  chatArea.style.maxHeight = `calc(100vh - ${inputHeight + 100}px)`;
+}
+
+function adjustTextareaHeight() {
   this.style.height = 'auto';
   this.style.height = (this.scrollHeight) + 'px';
   adjustChatAreaHeight();
-});
+}
 
-chatArea.scrollTop = chatArea.scrollHeight;
-
-document.querySelectorAll('.message').forEach(message => {
-  if (message.classList.contains('assistant-message')) {
-    const content = message.textContent;
-    message.innerHTML = '';
-    message.appendChild(renderMessage(content, true).firstChild);
+function handleEnterPress(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage(e);
   }
-});
+}
 
-document.addEventListener('DOMContentLoaded', (event) => {
-  applyHighlighting();
-  addCopyButtons();
-});
+function toggleSettings() {
+  const assistantPromptWrapper = document.getElementById('assistant-prompt-wrapper');
+  assistantPromptWrapper.style.display = assistantPromptWrapper.style.display === 'none' ? 'block' : 'none';
+}
 
-settingsButton.addEventListener('click', function() {
-  if (assistantPromptWrapper.style.display === 'none') {
-    assistantPromptWrapper.style.display = 'block';
-  } else {
-    assistantPromptWrapper.style.display = 'none';
-  }
-});
+function handleModelChange() {
+  console.log('Model changed to:', this.value);
+}
+
+function applyHighlightingAndCopyButtons() {
+  document.querySelectorAll('pre code').forEach((block) => {
+    hljs.highlightElement(block);
+  });
+
+  document.querySelectorAll('pre').forEach((pre) => {
+    if (!pre.querySelector('.copy-button')) {
+      const button = document.createElement('button');
+      button.className = 'copy-button';
+      button.textContent = 'Copy';
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const code = pre.querySelector('code');
+        navigator.clipboard.writeText(code.textContent).then(() => {
+          button.textContent = 'Copied!';
+          setTimeout(() => {
+            button.textContent = 'Copy';
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy text: ', err);
+        });
+      });
+      pre.appendChild(button);
+    }
+  });
+}
+
+// Initialize
+attachEventListeners();
+adjustChatAreaHeight();

@@ -16,9 +16,7 @@ Jarvis-Chat is a Flask-based web application that utilizes various AI models to 
 - **Code Copying**: Allows users to easily copy generated code with a single click.
 - **Web Search Function**: You can perform a web search to get up-to-date information.
 - **PDF Document Support**: Upload PDF documents to JARVIS, which can then be used to provide context-specific responses.
-
-[**Live Demo**](https://ai.arjum.com/)
-
+- 
 
 **Getting Started**
 - Clone the repository or download the code.

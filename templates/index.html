@@ -14,6 +14,7 @@
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
+  <div id="flash-message-container"></div>
   <div class="container">
     <div class="chat-header">
       <h1>Jarvis</h1>
@@ -33,27 +34,50 @@
         </button>
       </div>
     </div>
-
-    <div id="flash-message-container"></div>
-
     <form action="/stream" method="post" id="query-form">
+      <input type="hidden" name="disable_search" id="disable_search_hidden" value="false">
       <div id="assistant-prompt-wrapper" style="display: none;">
         <div class="settings-column">
           <label for="model_select">Model:</label>
-          <select id="model_select" name="model_select">
-            <option value="gemma-7b-it">(Google) gemma-7B</option>            
-            <option value="gemma2-9b-it">(Google) gemma2-9B</option>
-            <option value="llama-3.2-90b-text-preview">(Meta) Llama 3.2 90B </option>
-            <option value="llama-3.2-11b-text-preview">(Meta) Llama 3.2 11B </option>
-            <option value="llama-3.2-3b-preview">(Meta) Llama 3.2 3B</option>
-            <option value="llama-3.2-1b-preview">(Meta) Llama 3.2 1B</option>
+          <select id="model_select" name="model_select">           
             <option value="Meta-Llama-3.1-405B-Instruct">(Meta) Llama 3.1 405B Instruct</option>
-            <option value="llama-3.1-70b-versatile" selected>(Meta) llama-3.1-70B</option>
-            <option value="llama-3.1-8b-instant">(Meta) llama-3.1-8B</option>
-            <option value="mistral-large-2407">(Mistral) Mistral large 2 123B</option> 
-            <option value="mistral-small-2409">(Mistral) Mistral Small 22B</option>
-            <option value="llama3.1-70b">(Meta) llama3.1-70B (cerebras)</option>
-            <option value="llama3.1-8b">(Meta) llama3.1-8B SPEED (cerebras)</option>
+            <option value="hf:meta-llama/Llama-3.3-70B-Instruct">(Meta) Llama-3.3-70B-Instruct</option>
+            <option value="llama-3.3-70b">(Meta) llama-3.3-70b (cerebras)</option>
+            <option value="hf:nvidia/Llama-3.1-Nemotron-70B-Instruct-HF">(Nvidia) Llama-3.1-Nemotron-70B-instruct</option>
+            <option value="hf:Qwen/Qwen2.5-72B-Instruct">(Qwen) Qwen2.5 - 72b -Instruct</option>
+            <option value="hf:Qwen/Qwen2.5-Coder-32B-Instruct">(Qwen) Qwen2.5-Coder-32B-Instruct</option>
+            <option value="pixtral-large-latest">(Mistral) Pixtral large </option>
+            <option value="mistral-large-latest">(Mistral) Mistral large 2 </option>
+            <option value="mistral-small-latest" selected>(Mistral) Mistral Small 3 </option>
+            <option value="gemini-2.0-flash">(Google) Gemini-2.0-Flash </option>
+            <option value="gemini-2.0-flash-lite-preview-02-05">(Google) Gemini-2.0-Flash - Lite </option>
+            <option value="gemini-2.0-flash-thinking-exp-01-21">(Google) Gemini-2.0-Flash-Thinking </option>
+          </select>
+
+          <div class="auto-tts-container">
+            <label for="disable_search">Web Search:</label>
+            <div class="spacer"></div>
+            <label class="switch">
+              <input type="checkbox" id="disable_search" name="disable_search" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <div class="auto-tts-container">
+            <label for="auto_tts">Auto TTS:</label>
+            <div class="spacer"></div>
+            <label class="switch">
+              <input type="checkbox" id="auto_tts" name="auto_tts">
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <label for="tts_language">Text-to-Speech Language:</label>
+          <select id="tts_language" name="tts_language">
+            <option value="id-ID">Bahasa Indonesia</option>
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="ja-JP">Japanese</option>
+            <option value="zh-CN">Chinese (Simplified)</option>
+            <option value="ko-KR">Korean</option>
           </select>
 
           <label for="assistant_prompt">Assistant Prompt:</label>
@@ -84,28 +108,42 @@
         <button id="remove-pdf" type="button">x</button>
       </div>
       <div class="input-row">
-        <button id="attach-button" type="button">
+        <button id="attach-button" type="button" data-tooltip="Upload PDF or Image">
           <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M21.586 10.461l-10.05 10.075c-1.95 1.949-5.122 1.949-7.071 0s-1.95-5.122 0-7.072l10.628-10.585c1.17-1.17 3.073-1.17 4.243 0 1.17 1.17 1.17 3.072 0 4.242l-8.507 8.464c-.39.39-1.024.39-1.414 0s-.39-1.024 0-1.414l7.093-7.05-1.415-1.414-7.093 7.049c-1.17 1.17-1.17 3.073 0 4.243 1.17 1.17 3.072 1.17 4.242 0l8.507-8.464c1.95-1.95 1.95-5.123 0-7.072-1.95-1.949-5.123-1.949-7.072 0L3.039 13.063c-2.73 2.729-2.73 7.17 0 9.9 2.73 2.729 7.17 2.729 9.9 0l10.05-10.075-1.414-1.414z" fill="#e0e0e0"/>
           </svg>
         </button>
-        <input type="file" id="file-upload" name="file" accept=".pdf" style="display: none;">
+        <input type="file" id="file-upload" name="file" accept=".pdf, .png, .jpg, .jpeg" style="display: none;">
         <textarea
           id="user_input"
           name="user_input"
           rows="1"
           placeholder="Type your message here..."
           required
+          autofocus
         ></textarea>
-        <button type="button" id="send-button">
+        <button type="button" id="send-button" style="display: none;" data-tooltip="Send message">
           <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="#e0e0e0"/>
           </svg>
         </button>
+        <button id="start-recording" type="button" data-tooltip="Talk to Jarvis">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+          </svg>
+        </button>
+        <button id="stop-recording" type="button" style="display: none;" data-tooltip="Stop talk and send to Jarvis">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <rect x="8" y="8" width="8" height="8" fill="white"/>
+          </svg>
+        </button>      
       </div>
     </div> 
   </div>
-  <div id="loading-indicator" style="display: none;">Uploading PDF...</div>
+  <div id="loading-indicator" style="display: none;">Uploading...</div>
   <script src="{{ url_for('static', filename='highlight.min.js') }}"></script>
   <script src="{{ url_for('static', filename='marked.min.js') }}"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>

@@ -126,7 +126,6 @@ Logging is configured for:
 
 ## Security
 
-- CORS is configured for specific origins
 - File upload restrictions
 - Session security
 - Environment variable validation

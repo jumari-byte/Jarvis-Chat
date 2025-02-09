@@ -1,7 +1,7 @@
-# Modular Flask Chat Application
+# Jumari Advanced Virtual Intelligence System
 
 ## Overview
-This is a modular Flask application that provides chat functionality with multiple AI models, file processing, text-to-speech capabilities, and web search integration.
+This is  Flask application that provides chat functionality with multiple AI models, file processing, text-to-speech capabilities, and web search integration.  It features basic memory for follow-up questions, customizable system prompts, and allows you to select from a variety of AI models. Designed for ease of use, it requires minimal setup to get started. Powering a local ChatGPT-like environment. The system is designed to be user-friendly, accurate, and informative, with a focus on providing relevant and contextual responses.
 
 ## Directory Structure
 ```
@@ -38,6 +38,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 2. Dependencies
 
 Install all dependencies using pip:
+cd to jarvis-chat
 ```bash
 pip install -r requirements.txt
 ```
@@ -94,6 +95,10 @@ python run.py
 - Semantic search in uploaded documents
 - Session management
 - Streaming responses
+- Markdown Rendering: Supports rendering of Markdown syntax for formatted text.
+- Code Highlighting: Highlights code snippets with syntax highlighting for better readability.
+- Code Copying: Allows users to easily copy generated code with a single click.
+- You can also get information from a URL. Jarvis will add the content from the URL as context before providing a response.
 
 ## Development
 

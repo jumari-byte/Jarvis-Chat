@@ -3,6 +3,11 @@
 ## Overview
 This is  Flask application that provides chat functionality with multiple AI models, file processing, text-to-speech capabilities, and web search integration.  It features basic memory for follow-up questions, customizable system prompts, and allows you to select from a variety of AI models. Designed for ease of use, it requires minimal setup to get started. Powering a local ChatGPT-like environment. The system is designed to be user-friendly, accurate, and informative, with a focus on providing relevant and contextual responses.
 
+![image](https://github.com/user-attachments/assets/44f98a94-3c87-4c05-9067-91d080025581)
+![image](https://github.com/user-attachments/assets/f8aeba6f-afe2-4f5b-ac05-c309fcc3c872)
+
+
+
 ## Directory Structure
 ```
 app/
